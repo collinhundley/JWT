@@ -50,12 +50,12 @@ public enum InvalidToken: CustomStringConvertible, Swift.Error {
 public func decode(_ jwt: String, algorithms: [Algorithm], verify: Bool = true, audience: String? = nil, issuer: String? = nil) throws -> Payload {
     switch load(jwt) {
     case let .success(header, payload, signature, signatureInput):
-//        if verify {
-//            if let failure = validateClaims(payload, audience: audience, issuer: issuer) ?? verifySignature(algorithms, header: header, signingInput: signatureInput, signature: signature) {
-//                throw failure
-//            }
-//        }
-        
+        if verify {
+            if let failure = /*validateClaims(payload, audience: audience, issuer: issuer) ??*/ verifySignature(algorithms, header: header, signingInput: signatureInput, signature: signature) {
+                throw failure
+            }
+        }
+    
         return payload
     case .failure(let failure):
         throw failure
