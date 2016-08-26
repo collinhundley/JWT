@@ -38,7 +38,7 @@ public enum Algorithm: CustomStringConvertible {
         return nil
     }
     
-    public var description:String {
+    public var description: String {
         switch self {
         case .none:
             return "none"
@@ -52,7 +52,7 @@ public enum Algorithm: CustomStringConvertible {
     }
     
     /// Sign a message using the algorithm
-    func sign(message:String) -> String {
+    func sign(message: String) -> String {
         func signHS(_ key: String, algorithm: HMAC.Algorithm) -> String {
             let hmac = HMAC(using: algorithm, key: key).update(string: message)!.final()
             let data = Data(bytes: hmac)
@@ -72,7 +72,7 @@ public enum Algorithm: CustomStringConvertible {
     }
     
     /// Verify a signature for a message using the algorithm
-    func verify(message:String, signature:Data) -> Bool {
+    func verify(message: String, signature: Data) -> Bool {
         return sign(message: message) == base64URLencode(signature)
     }
 }
@@ -84,7 +84,7 @@ public enum Algorithm: CustomStringConvertible {
  - parameter algorithm: The algorithm to sign the payload with
  - returns: The JSON web token as a String
  */
-public func encode(payload:Payload, algorithm:Algorithm) -> String {
+public func encode(payload: Payload, algorithm: Algorithm) -> String {
     func encodeJSON(payload:Payload) -> String? {
         if let data = try? JSONSerialization.data(withJSONObject: payload, options: JSONSerialization.WritingOptions(rawValue: 0)) {
             return base64URLencode(data)
@@ -182,7 +182,7 @@ public class PayloadBuilder {
     
 }
 
-public func encode(algorithm:Algorithm, closure:((PayloadBuilder) -> ())) -> String {
+public func encode(algorithm: Algorithm, closure: ((PayloadBuilder) -> ())) -> String {
     let builder = PayloadBuilder()
     closure(builder)
     return encode(payload:builder.payload, algorithm: algorithm)

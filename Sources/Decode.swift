@@ -2,7 +2,7 @@ import Foundation
 
 
 /// Failure reasons from decoding a JWT
-public enum InvalidToken : CustomStringConvertible, Swift.Error {
+public enum InvalidToken: CustomStringConvertible, Swift.Error {
     /// Decoding the JWT itself failed
     case decodeError(String)
     
@@ -47,7 +47,7 @@ public enum InvalidToken : CustomStringConvertible, Swift.Error {
 
 
 /// Decode a JWT
-public func decode(_ jwt:String, algorithms:[Algorithm], verify:Bool = true, audience:String? = nil, issuer:String? = nil) throws -> Payload {
+public func decode(_ jwt: String, algorithms: [Algorithm], verify: Bool = true, audience: String? = nil, issuer: String? = nil) throws -> Payload {
     switch load(jwt) {
     case let .success(header, payload, signature, signatureInput):
         if verify {
@@ -63,18 +63,18 @@ public func decode(_ jwt:String, algorithms:[Algorithm], verify:Bool = true, aud
 }
 
 /// Decode a JWT
-public func decode(_ jwt:String, algorithm:Algorithm, verify:Bool = true, audience:String? = nil, issuer:String? = nil) throws -> Payload {
+public func decode(_ jwt: String, algorithm: Algorithm, verify: Bool = true, audience: String? = nil, issuer: String? = nil) throws -> Payload {
     return try decode(jwt, algorithms: [algorithm], verify: verify, audience: audience, issuer: issuer)
 }
 
 // MARK: Parsing a JWT
 
 enum LoadResult {
-    case success(header:Payload, payload:Payload, signature:Data, signatureInput:String)
+    case success(header: Payload, payload: Payload, signature: Data, signatureInput: String)
     case failure(InvalidToken)
 }
 
-func load(_ jwt:String) -> LoadResult {
+func load(_ jwt: String) -> LoadResult {
     let segments = jwt.components(separatedBy: ".")
     if segments.count != 3 {
         return .failure(.decodeError("Not enough segments"))
@@ -115,7 +115,7 @@ func load(_ jwt:String) -> LoadResult {
 
 // MARK: Signature Verification
 
-func verifySignature(_ algorithms:[Algorithm], header:Payload, signingInput:String, signature:Data) -> InvalidToken? {
+func verifySignature(_ algorithms: [Algorithm], header: Payload, signingInput: String, signature: Data) -> InvalidToken? {
     if let alg = header["alg"] as? String {
         let matchingAlgorithms = algorithms.filter { algorithm in  algorithm.description == alg }
         let results = matchingAlgorithms.map { algorithm in algorithm.verify(message: signingInput, signature: signature) }
@@ -123,10 +123,8 @@ func verifySignature(_ algorithms:[Algorithm], header:Payload, signingInput:Stri
         if successes.count > 0 {
             return nil
         }
-        
         return .invalidAlgorithm
     }
-    
     return .decodeError("Missing Algorithm")
 }
 
