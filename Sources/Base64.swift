@@ -4,7 +4,7 @@ import Foundation
 /// URI-safe base64 encode.
 func base64URLencode(_ input: Data) -> String {
     let data = input.base64EncodedData()
-    let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as! String
+    let string = String(data: data, encoding: String.Encoding.utf8)!
     return string
         .replacingOccurrences(of: "+", with: "-")
         .replacingOccurrences(of: "/", with: "_")
