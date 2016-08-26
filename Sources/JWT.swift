@@ -3,11 +3,11 @@ import Foundation
 import Cryptor
 
 
-#if os(Linux)
-public typealias Payload = [String : Any]
-#else
+//#if os(Linux)
+//public typealias Payload = [String : Any]
+//#else
 public typealias Payload = [String : AnyObject]
-#endif
+//#endif
 
 /// The supported Algorithms
 public enum Algorithm: CustomStringConvertible {
