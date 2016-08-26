@@ -93,8 +93,9 @@ public func encode(payload: Payload, algorithm: Algorithm) -> String {
         var str = ""
         for (index, dict) in payload.enumerated() {
             if index == 0 {
-                str += "{\"\(dict.key)\":\"\(dict.value)\""
+                str += "{"
             }
+            str += "\"\(dict.key)\":\"\(dict.value)\""
             if index == payload.count - 1 {
                 str += "}"
             } else {
