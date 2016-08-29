@@ -3,11 +3,7 @@ import Foundation
 import Cryptor
 
 
-//#if os(Linux)
 public typealias Payload = [String : Any]
-//#else
-//public typealias Payload = [String : AnyObject]
-//#endif
 
 /// The supported Algorithms
 public enum Algorithm: CustomStringConvertible {
@@ -160,7 +156,6 @@ public class PayloadBuilder {
         }
     }
     
-//    #if os(Linux)
     public subscript(key: String) -> Any? {
         get {
             return payload[key]
@@ -169,25 +164,6 @@ public class PayloadBuilder {
             payload[key] = newValue
         }
     }
-//    #else
-//    public subscript(key: String) -> AnyObject? {
-//        get {
-//            return payload[key]
-//        }
-//        set {
-//            payload[key] = newValue
-//        }
-//    }
-//    #endif
-    
-//    public subscript(key: String) -> String? {
-//        get {
-//            return payload[key]
-//        }
-//        set {
-//            payload[key] = newValue
-//        }
-//    }
     
 }
 
