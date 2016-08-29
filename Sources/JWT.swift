@@ -4,11 +4,10 @@ import Cryptor
 
 
 //#if os(Linux)
-//public typealias Payload = [String : Any]
+public typealias Payload = [String : Any]
 //#else
 //public typealias Payload = [String : AnyObject]
 //#endif
-public typealias Payload = [String : String]
 
 /// The supported Algorithms
 public enum Algorithm: CustomStringConvertible {
@@ -87,22 +86,7 @@ public enum Algorithm: CustomStringConvertible {
  */
 public func encode(payload: Payload, algorithm: Algorithm) -> String {
     func encodeJSON(payload: Payload) -> String? {
-//        if let data = try? JSONSerialization.data(withJSONObject: payload, options: JSONSerialization.WritingOptions(rawValue: 0)) {
-//            return base64URLencode(data)
-//        }
-        var str = ""
-        for (index, dict) in payload.enumerated() {
-            if index == 0 {
-                str += "{"
-            }
-            str += "\"\(dict.key)\":\"\(dict.value)\""
-            if index == payload.count - 1 {
-                str += "}"
-            } else {
-                str += ","
-            }
-        }
-        if let data = str.data(using: String.Encoding.utf8) {
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: JSONSerialization.WritingOptions(rawValue: 0)) {
             return base64URLencode(data)
         }
         return nil
@@ -119,72 +103,72 @@ public class PayloadBuilder {
     
     var payload = Payload()
     
-//    public var issuer: String? {
-//        get {
-//            return payload["iss"] as? String
-//        }
-//        set {
-//            payload["iss"] = newValue
-//        }
-//    }
-//    
-//    public var audience: String? {
-//        get {
-//            return payload["aud"] as? String
-//        }
-//        set {
-//            payload["aud"] = newValue
-//        }
-//    }
-//    
-//    public var expiration: Date? {
-//        get {
-//            if let expiration = payload["exp"] as? TimeInterval {
-//                return Date(timeIntervalSince1970: expiration)
-//            }
-//            
-//            return nil
-//        }
-//        set {
-//            payload["exp"] = newValue?.timeIntervalSince1970
-//        }
-//    }
-//    
-//    public var notBefore: Date? {
-//        get {
-//            if let notBefore = payload["nbf"] as? TimeInterval {
-//                return Date(timeIntervalSince1970: notBefore)
-//            }
-//            
-//            return nil
-//        }
-//        set {
-//            payload["nbf"] = newValue?.timeIntervalSince1970
-//        }
-//    }
-//    
-//    public var issuedAt: Date? {
-//        get {
-//            if let issuedAt = payload["iat"] as? TimeInterval {
-//                return Date(timeIntervalSince1970: issuedAt)
-//            }
-//            
-//            return nil
-//        }
-//        set {
-//            payload["iat"] = newValue?.timeIntervalSince1970
-//        }
-//    }
+    public var issuer: String? {
+        get {
+            return payload["iss"] as? String
+        }
+        set {
+            payload["iss"] = newValue
+        }
+    }
+    
+    public var audience: String? {
+        get {
+            return payload["aud"] as? String
+        }
+        set {
+            payload["aud"] = newValue
+        }
+    }
+    
+    public var expiration: Date? {
+        get {
+            if let expiration = payload["exp"] as? TimeInterval {
+                return Date(timeIntervalSince1970: expiration)
+            }
+            
+            return nil
+        }
+        set {
+            payload["exp"] = newValue?.timeIntervalSince1970
+        }
+    }
+    
+    public var notBefore: Date? {
+        get {
+            if let notBefore = payload["nbf"] as? TimeInterval {
+                return Date(timeIntervalSince1970: notBefore)
+            }
+            
+            return nil
+        }
+        set {
+            payload["nbf"] = newValue?.timeIntervalSince1970
+        }
+    }
+    
+    public var issuedAt: Date? {
+        get {
+            if let issuedAt = payload["iat"] as? TimeInterval {
+                return Date(timeIntervalSince1970: issuedAt)
+            }
+            
+            return nil
+        }
+        set {
+            payload["iat"] = newValue?.timeIntervalSince1970
+        }
+    }
     
 //    #if os(Linux)
-//    public subscript(key: String) -> Any? {
-//        get {
-//            return payload[key]
-//        }
-//        set {
-//            payload[key] = newValue
-//        }
-//    }
+    public subscript(key: String) -> Any? {
+        get {
+            return payload[key]
+        }
+        set {
+            payload[key] = newValue
+        }
+    }
 //    #else
 //    public subscript(key: String) -> AnyObject? {
 //        get {
@@ -196,14 +180,14 @@ public class PayloadBuilder {
 //    }
 //    #endif
     
-    public subscript(key: String) -> String? {
-        get {
-            return payload[key]
-        }
-        set {
-            payload[key] = newValue
-        }
-    }
+//    public subscript(key: String) -> String? {
+//        get {
+//            return payload[key]
+//        }
+//        set {
+//            payload[key] = newValue
+//        }
+//    }
     
 }
 
