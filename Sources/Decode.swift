@@ -55,7 +55,6 @@ public func decode(_ jwt: String, algorithms: [Algorithm], verify: Bool = true, 
                 throw failure
             }
         }
-    
         return payload
     case .failure(let failure):
         throw failure

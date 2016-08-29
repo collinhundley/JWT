@@ -17,7 +17,7 @@ func base64URLdecode(_ input: String) -> Data? {
     var ending = ""
     if rem > 0 {
         let amount = 4 - rem
-        ending = String(repeating: Character("="), count: amount)
+        ending = String(repeating: "=", count: amount)
     }
     let base64 = input.replacingOccurrences(of: "-", with: "+")
         .replacingOccurrences(of: "_", with: "/") + ending
