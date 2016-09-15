@@ -5,25 +5,18 @@ import Foundation
 public enum InvalidToken: CustomStringConvertible, Swift.Error {
     /// Decoding the JWT itself failed
     case decodeError(String)
-    
     /// The JWT uses an unsupported algorithm
     case invalidAlgorithm
-    
     /// The issued claim has expired
     case expiredSignature
-    
     /// The issued claim is for the future
     case immatureSignature
-    
     /// The claim is for the future
     case invalidIssuedAt
-    
     /// The audience of the claim doesn't match
     case invalidAudience
-    
     /// The issuer claim failed to verify
     case invalidIssuer
-    
     /// Returns a readable description of the error
     public var description:String {
         switch self {
@@ -66,7 +59,7 @@ public func decode(_ jwt: String, algorithm: Algorithm, verify: Bool = true, aud
     return try decode(jwt, algorithms: [algorithm], verify: verify, audience: audience, issuer: issuer)
 }
 
-// MARK: Parsing a JWT
+// MARK: JWT parsing
 
 enum LoadResult {
     case success(header: Payload, payload: Payload, signature: Data, signatureInput: String)
@@ -78,37 +71,30 @@ func load(_ jwt: String) -> LoadResult {
     if segments.count != 3 {
         return .failure(.decodeError("Not enough segments"))
     }
-    
     let headerSegment = segments[0]
     let payloadSegment = segments[1]
     let signatureSegment = segments[2]
     let signatureInput = "\(headerSegment).\(payloadSegment)"
-    
     let headerData = base64URLdecode(headerSegment)
     if headerData == nil {
         return .failure(.decodeError("Header is not correctly encoded as base64"))
     }
-    
     let header = (try? JSONSerialization.jsonObject(with: headerData!, options: JSONSerialization.ReadingOptions(rawValue: 0))) as? Payload
     if header == nil {
         return .failure(.decodeError("Invalid header"))
     }
-    
     let payloadData = base64URLdecode(payloadSegment)
     if payloadData == nil {
         return .failure(.decodeError("Payload is not correctly encoded as base64"))
     }
-    
     let payload = (try? JSONSerialization.jsonObject(with: payloadData!, options: JSONSerialization.ReadingOptions(rawValue: 0))) as? Payload
     if payload == nil {
         return .failure(.decodeError("Invalid payload"))
     }
-    
     let signature = base64URLdecode(signatureSegment)
     if signature == nil {
         return .failure(.decodeError("Signature is not correctly encoded as base64"))
     }
-    
     return .success(header:header!, payload:payload!, signature:signature!, signatureInput:signatureInput)
 }
 

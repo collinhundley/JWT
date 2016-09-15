@@ -21,7 +21,6 @@ func validateAudience(_ payload: Payload, audience: String?) -> InvalidToken? {
             return .decodeError("Invalid audience claim, must be a string or an array of strings")
         }
     }
-    
     return nil
 }
 
@@ -35,12 +34,10 @@ func validateIssuer(_ payload: Payload, issuer: String?) -> InvalidToken? {
             return .invalidIssuer
         }
     }
-    
     return nil
 }
 
 func validateDate(_ payload: Payload, key: String, comparison: ComparisonResult, failure: InvalidToken, decodeError: String) -> InvalidToken? {
-    
     if let value = payload[key] {
         var date: Date?
         
@@ -58,7 +55,5 @@ func validateDate(_ payload: Payload, key: String, comparison: ComparisonResult,
             return .decodeError(decodeError)
         }
     }
-    
     return nil
-    
 }
