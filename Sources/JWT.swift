@@ -4,9 +4,13 @@ import Cryptor
 
 public typealias Payload = [String : Any]
 
+public enum Error: Swift.Error {
+    case sign(String)
+}
+
 /// The supported Algorithms
 public enum Algorithm: CustomStringConvertible {
-    /// No Algorithm, i-e, insecure
+    /// No algorithm (insecure)
     case none
     /// HMAC using SHA-256 hash algorithm
     case hs256(String)
@@ -14,6 +18,23 @@ public enum Algorithm: CustomStringConvertible {
     case hs384(String)
     /// HMAC using SHA-512 hash algorithm
     case hs512(String)
+    /// RSA MD2
+    case rsMD2(String)
+    /// RSA MD4
+    case rsMD4(String)
+    /// RSA MD5
+    case rsMD5(String)
+    /// RSA SHA-1
+    case rs1(String)
+    /// RSA SHA-224
+    case rs224(String)
+    /// RSA SHA-256
+    case rs256(String)
+    /// RSA SHA-384
+    case rs384(String)
+    /// RSA SHA-512
+    case rs512(String)
+    
     
     static func algorithm(_ name: String, key: String?) -> Algorithm? {
         if name == "none" {
@@ -28,6 +49,22 @@ public enum Algorithm: CustomStringConvertible {
                 return .hs384(key)
             } else if name == "HS512" {
                 return .hs512(key)
+            } else if name == "RSMD2" {
+                return .rsMD2(key)
+            } else if name == "RSMD4" {
+                return .rsMD4(key)
+            } else if name == "RSMD5" {
+                return .rsMD5(key)
+            } else if name == "RS1" {
+                return .rs1(key)
+            } else if name == "RS224" {
+                return .rs224(key)
+            } else if name == "RS256" {
+                return .rs256(key)
+            } else if name == "RS384" {
+                return .rs384(key)
+            } else if name == "RS512" {
+                return .rs512(key)
             }
         }
         return nil
@@ -43,54 +80,107 @@ public enum Algorithm: CustomStringConvertible {
             return "HS384"
         case .hs512:
             return "HS512"
+        case .rsMD2:
+            return "RSMD2"
+        case .rsMD4:
+            return "RSMD4"
+        case .rsMD5:
+            return "RSMD5"
+        case .rs1:
+            return "RS1"
+        case .rs224:
+            return "RS224"
+        case .rs256:
+            return "RS256"
+        case .rs384:
+            return "RS384"
+        case .rs512:
+            return "RS512"
         }
     }
     
     /// Sign a message using the algorithm
-    func sign(message: String) -> String {
-        func signHS(_ key: String, algorithm: HMAC.Algorithm) -> String {
-            let hmac = HMAC(using: algorithm, key: key).update(string: message)!.final()
-            let data = Data(bytes: hmac)
+    func sign(message: String) throws -> String {
+        func signHS(_ key: String, algorithm: HMAC.Algorithm) throws -> String {
+            guard let hmac = HMAC(using: algorithm, key: key).update(string: message) else {
+                throw Error.sign("Failed to sign JWT: could not generate HMAC from given key.")
+            }
+            let digest = hmac.final()
+            let data = Data(bytes: digest)
             return base64URLencode(data)
+        }
+        func signRSA(_ key: String, encoding: String.Encoding = String.Encoding.utf8, algorithm: RSA.Algorithm) throws -> String {
+            guard let keyData = key.data(using: encoding) else {
+                throw Error.sign("Could not convert private key into Data with the given encoding: \(encoding.description).")
+            }
+            guard let rsa = RSA(key: keyData, algorithm: algorithm).sign(message) else {
+                throw Error.sign("Failed to sign JWT: could not sign RSA with given key.")
+            }
+            return base64URLencode(rsa)
         }
         
         switch self {
         case .none:
             return ""
         case .hs256(let key):
-            return signHS(key, algorithm: HMAC.Algorithm.sha256)
+            return try signHS(key, algorithm: HMAC.Algorithm.sha256)
         case .hs384(let key):
-            return signHS(key, algorithm: HMAC.Algorithm.sha384)
+            return try signHS(key, algorithm: HMAC.Algorithm.sha384)
         case .hs512(let key):
-            return signHS(key, algorithm: HMAC.Algorithm.sha512)
+            return try signHS(key, algorithm: HMAC.Algorithm.sha512)
+        case .rsMD2(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.md2)
+        case .rsMD4(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.md4)
+        case .rsMD5(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.md5)
+        case .rs1(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.sha1)
+        case .rs224(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.sha224)
+        case .rs256(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.sha256)
+        case .rs384(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.sha384)
+        case .rs512(let key):
+            return try signRSA(key, algorithm: RSA.Algorithm.sha512)
         }
     }
     
     /// Verify a signature for a message using the algorithm
     func verify(message: String, signature: Data) -> Bool {
-        return sign(message: message) == base64URLencode(signature)
+        guard let signed = try? sign(message: message) else {
+            return false
+        }
+        return signed == base64URLencode(signature)
     }
 }
 
 // MARK: Encoding
 
 /*** Encode a payload
- - parameter payload: The payload to sign
- - parameter algorithm: The algorithm to sign the payload with
+ - parameter payload: The payload to sign.
+ - parameter algorithm: The algorithm used to sign the payload.
  - returns: The JSON web token as a String
  */
-public func encode(payload: Payload, algorithm: Algorithm) -> String {
-    func encodeJSON(payload: Payload) -> String? {
-        if let data = try? JSONSerialization.data(withJSONObject: payload, options: JSONSerialization.WritingOptions(rawValue: 0)) {
-            return base64URLencode(data)
-        }
-        return nil
+
+
+/// Encode a payload.
+///
+/// - parameter payload:   The payload to sign.
+/// - parameter algorithm: The algorithm to use for signing the payload.
+///
+/// - returns: The JSON web token as a String.
+public func encode(payload: Payload, algorithm: Algorithm) throws -> String {
+    func encodeJSON(payload: Payload) throws -> String {
+        let data = try JSONSerialization.data(withJSONObject: payload, options: JSONSerialization.WritingOptions(rawValue: 0))
+        return base64URLencode(data)
     }
     
-    let header = encodeJSON(payload: ["typ": "JWT", "alg": algorithm.description])!
-    let payload = encodeJSON(payload: payload)!
+    let header = try encodeJSON(payload: ["typ": "JWT", "alg": algorithm.description])
+    let payload = try encodeJSON(payload: payload)
     let signingInput = "\(header).\(payload)"
-    let signature = algorithm.sign(message: signingInput)
+    let signature = try algorithm.sign(message: signingInput)
     return "\(signingInput).\(signature)"
 }
 
@@ -166,10 +256,10 @@ public class PayloadBuilder {
     
 }
 
-public func encode(algorithm: Algorithm, closure: ((PayloadBuilder) -> ())) -> String {
+public func encode(algorithm: Algorithm, closure: ((PayloadBuilder) -> ())) throws -> String {
     let builder = PayloadBuilder()
     closure(builder)
-    return encode(payload:builder.payload, algorithm: algorithm)
+    return try encode(payload:builder.payload, algorithm: algorithm)
 }
 
 
