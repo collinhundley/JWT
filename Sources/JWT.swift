@@ -18,22 +18,6 @@ public enum Algorithm: CustomStringConvertible {
     case hs384(String)
     /// HMAC using SHA-512 hash algorithm
     case hs512(String)
-    /// RSA MD2
-    case rsMD2(String)
-    /// RSA MD4
-    case rsMD4(String)
-    /// RSA MD5
-    case rsMD5(String)
-    /// RSA SHA-1
-    case rs1(String)
-    /// RSA SHA-224
-    case rs224(String)
-    /// RSA SHA-256
-    case rs256(String)
-    /// RSA SHA-384
-    case rs384(String)
-    /// RSA SHA-512
-    case rs512(String)
     
     
     static func algorithm(_ name: String, key: String?) -> Algorithm? {
@@ -49,22 +33,6 @@ public enum Algorithm: CustomStringConvertible {
                 return .hs384(key)
             } else if name == "HS512" {
                 return .hs512(key)
-            } else if name == "RSMD2" {
-                return .rsMD2(key)
-            } else if name == "RSMD4" {
-                return .rsMD4(key)
-            } else if name == "RSMD5" {
-                return .rsMD5(key)
-            } else if name == "RS1" {
-                return .rs1(key)
-            } else if name == "RS224" {
-                return .rs224(key)
-            } else if name == "RS256" {
-                return .rs256(key)
-            } else if name == "RS384" {
-                return .rs384(key)
-            } else if name == "RS512" {
-                return .rs512(key)
             }
         }
         return nil
@@ -80,22 +48,6 @@ public enum Algorithm: CustomStringConvertible {
             return "HS384"
         case .hs512:
             return "HS512"
-        case .rsMD2:
-            return "RSMD2"
-        case .rsMD4:
-            return "RSMD4"
-        case .rsMD5:
-            return "RSMD5"
-        case .rs1:
-            return "RS1"
-        case .rs224:
-            return "RS224"
-        case .rs256:
-            return "RS256"
-        case .rs384:
-            return "RS384"
-        case .rs512:
-            return "RS512"
         }
     }
     
@@ -109,15 +61,6 @@ public enum Algorithm: CustomStringConvertible {
             let data = Data(bytes: digest)
             return base64URLencode(data)
         }
-        func signRSA(_ key: String, encoding: String.Encoding = String.Encoding.utf8, algorithm: RSA.Algorithm) throws -> String {
-            guard let keyData = key.data(using: encoding) else {
-                throw Error.sign("Could not convert private key into Data with the given encoding: \(encoding.description).")
-            }
-            guard let rsa = RSA(key: keyData, algorithm: algorithm).sign(message) else {
-                throw Error.sign("Failed to sign JWT: could not sign RSA with given key.")
-            }
-            return base64URLencode(rsa)
-        }
         
         switch self {
         case .none:
@@ -128,22 +71,6 @@ public enum Algorithm: CustomStringConvertible {
             return try signHS(key, algorithm: HMAC.Algorithm.sha384)
         case .hs512(let key):
             return try signHS(key, algorithm: HMAC.Algorithm.sha512)
-        case .rsMD2(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.md2)
-        case .rsMD4(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.md4)
-        case .rsMD5(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.md5)
-        case .rs1(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.sha1)
-        case .rs224(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.sha224)
-        case .rs256(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.sha256)
-        case .rs384(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.sha384)
-        case .rs512(let key):
-            return try signRSA(key, algorithm: RSA.Algorithm.sha512)
         }
     }
     
